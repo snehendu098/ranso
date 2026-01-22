@@ -1,0 +1,24 @@
+{
+  "name": "create-axicov-app",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "create-axicov-app": "./bin/index.js"
+  },
+  "files": [
+    "bin",
+    "template"
+  ],
+  "scripts": {
+    "build": "bun build ./bin/index.ts --outdir ./bin --target node",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.0.0"
+  }
+}
