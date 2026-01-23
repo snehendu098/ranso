@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
+import { motion, AnimatePresence } from "motion/react";
 import { IconPlus, IconX, IconMicrophone, IconWaveSine } from "@tabler/icons-react";
+import { useAppKitAccount } from "@reown/appkit/react";
 import ChatLayout from "@/components/layout/ChatLayout";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 interface Message {
   id: string;
@@ -21,40 +26,109 @@ interface Tool {
 }
 
 const ChatPage = () => {
+  const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const { address, isConnected } = useAppKitAccount();
+  const threadId = params.id as string;
+
   const [showTools, setShowTools] = useState(false);
   const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "user",
-      content: "I am making a permissionless prediction market place for mantle hackathon. I already made the basic MVP of the prediction market place, Now to win the hackathon what things need to be add in the platform.",
-    },
-    {
-      id: "2",
-      role: "assistant",
-      content: `Here's a **tailored plan** to help your permissionless prediction marketplace stand out and **win a prize at the Mantle Global Hackathon 2025** — based on the official hackathon details, tracks, judges, and judging criteria.
-
----
-
-## What the Mantle Hackathon Is Looking For
-
-According to the hackathon rules, prizes, and judging criteria:
-
-**Key evaluation pillars include:**
-- Technical excellence (working & scalable code)
-- User experience (UX) & smooth demos
-- Real-world applicability and utility
-- Integration with Mantle's stack & ecosystem
-- Long-term potential & ecosystem fit
-- Community support (community vote prizes)
-- Optional incubation potential post-hackathon
-
-**Prize breakdown** highlights that *Best UX/Demo*, *Best Mantle Integration*, and *Community Choice* awards are separate from track prizes — meaning **demonstration, polish, and visibility matter almost as much as the product itself**.`,
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [chatLoaded, setChatLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const initialProcessed = useRef(false);
+
+  // Save chat to database
+  const saveChat = useCallback(async (msgs: Message[]) => {
+    if (!isConnected || !address || msgs.length === 0) return;
+
+    try {
+      await fetch(`${API_URL}/chats`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          threadId,
+          owner: address,
+          messages: msgs,
+        }),
+      });
+      // Notify sidebar to refresh recent chats
+      window.dispatchEvent(new CustomEvent("chat-updated"));
+    } catch (err) {
+      console.error("Failed to save chat:", err);
+    }
+  }, [threadId, address, isConnected]);
+
+  // Load existing chat from database
+  useEffect(() => {
+    const loadChat = async () => {
+      if (!threadId || chatLoaded) return;
+
+      try {
+        const res = await fetch(`${API_URL}/chats/thread/${threadId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && data.messages.length > 0) {
+            setMessages(data.messages);
+            initialProcessed.current = true;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load chat:", err);
+      } finally {
+        setChatLoaded(true);
+      }
+    };
+
+    loadChat();
+  }, [threadId, chatLoaded]);
+
+  // Process initial message from home page
+  useEffect(() => {
+    if (initialProcessed.current || !chatLoaded) return;
+
+    const initialMessage = searchParams.get("initial");
+    if (initialMessage) {
+      initialProcessed.current = true;
+
+      // Load tools from localStorage
+      const pendingTools = localStorage.getItem("pendingTools");
+      if (pendingTools) {
+        setSelectedTools(JSON.parse(pendingTools));
+        localStorage.removeItem("pendingTools");
+      }
+
+      // Add user message
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: initialMessage,
+      };
+      setMessages([userMessage]);
+      setIsLoading(true);
+
+      // Clean URL (remove ?initial param)
+      router.replace(window.location.pathname, { scroll: false });
+
+      // Simulate AI response
+      setTimeout(() => {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "This is a simulated response. The actual AI integration will be implemented later.",
+        };
+        setMessages((prev) => {
+          const newMsgs = [...prev, assistantMessage];
+          saveChat(newMsgs);
+          return newMsgs;
+        });
+        setIsLoading(false);
+      }, 1000);
+    }
+  }, [searchParams, router, chatLoaded, saveChat]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -93,7 +167,11 @@ According to the hackathon rules, prizes, and judging criteria:
         role: "assistant",
         content: "This is a simulated response. The actual AI integration will be implemented later.",
       };
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages((prev) => {
+        const newMsgs = [...prev, assistantMessage];
+        saveChat(newMsgs);
+        return newMsgs;
+      });
       setIsLoading(false);
     }, 1000);
   };
@@ -161,42 +239,63 @@ According to the hackathon rules, prizes, and judging criteria:
       selectedTools={selectedTools}
       onSelectTool={handleSelectTool}
     >
-      <div className="flex flex-col h-full bg-white">
+      <motion.div
+        className="flex flex-col h-full bg-white"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-8">
-          {messages.map((message) => (
-            <div key={message.id} className="mb-6">
-              {message.role === "user" ? (
-                // User message - right aligned with dark bubble
-                <div className="flex justify-end">
-                  <div className="max-w-[80%] px-4 py-3 bg-neutral-800 text-white rounded-2xl rounded-tr-sm">
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-3xl mx-auto px-4 py-8">
+            <AnimatePresence initial={true}>
+              {messages.map((message, index) => (
+                <motion.div
+                  key={message.id}
+                  className="mb-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index === 0 ? 0.1 : 0 }}
+                >
+                  {message.role === "user" ? (
+                    // User message - right aligned with dark bubble
+                    <div className="flex justify-end">
+                      <div className="max-w-[80%] px-4 py-3 bg-neutral-800 text-white rounded-2xl rounded-tr-sm">
+                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    // Assistant message - left aligned, plain text
+                    <div className="text-neutral-700 leading-relaxed">
+                      {renderMessageContent(message.content)}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {/* Loading indicator */}
+            <AnimatePresence>
+              {isLoading && (
+                <motion.div
+                  className="mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
-                </div>
-              ) : (
-                // Assistant message - left aligned, plain text
-                <div className="text-neutral-700 leading-relaxed">
-                  {renderMessageContent(message.content)}
-                </div>
+                </motion.div>
               )}
-            </div>
-          ))}
+            </AnimatePresence>
 
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="mb-6">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} />
+          </div>
         </div>
-      </div>
 
       {/* Input Area */}
       <div className="bg-white pb-4">
@@ -241,8 +340,8 @@ According to the hackathon rules, prizes, and judging criteria:
             </div>
           </form>
         </div>
-      </div>
-      </div>
+        </div>
+      </motion.div>
     </ChatLayout>
   );
 };
