@@ -18,7 +18,6 @@ const metadata = {
   icons: ["/logo.png"],
 };
 
-// Create the modal
 if (projectId) {
   createAppKit({
     adapters: [wagmiAdapter],
