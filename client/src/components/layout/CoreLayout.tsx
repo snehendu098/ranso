@@ -9,7 +9,7 @@ const CoreLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   const handleNewChat = () => {
-    router.push("/chat");
+    router.push("/");
   };
 
   const links = [
