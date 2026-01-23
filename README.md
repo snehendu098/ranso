@@ -2,6 +2,8 @@
 
 Infrastructure layer for x402-enabled agentic systems on Cronos.
 
+**[Documentation](https://axicov-ai.gitbook.io/axicov-docs/developer-resources/sdk)**
+
 ## What is Axicov?
 
 Axicov provides the infrastructure for building, deploying, and monetizing AI tools using the x402 payment protocol on Cronos testnet. It enables autonomous AI agents to pay for and consume APIs with USDC micropayments embedded directly in HTTP requests.
