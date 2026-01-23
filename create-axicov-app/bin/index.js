@@ -5027,7 +5027,8 @@ async function main() {
       deploy: "bun run scripts/deploy.ts"
     },
     dependencies: {
-      "@axicov/x402-cronos-sdk": `^${sdkVersion}`
+      "@axicov/x402-cronos-sdk": `^${sdkVersion}`,
+      zod: "^3.24.0"
     },
     devDependencies: {
       "@types/node": "^22.0.0",

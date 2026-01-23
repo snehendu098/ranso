@@ -1,0 +1,20 @@
+{
+  "name": "test-1",
+  "version": "0.0.1",
+  "description": "Find out good resources to learn x402Find out good strategies in the cronos ",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "deploy": "bun run scripts/deploy.ts"
+  },
+  "dependencies": {
+    "@axicov/x402-cronos-sdk": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0",
+    "archiver": "^7.0.0",
+    "@types/archiver": "^6.0.0"
+  }
+}

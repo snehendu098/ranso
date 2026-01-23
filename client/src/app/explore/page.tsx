@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { IconSearch, IconTerminal2 } from "@tabler/icons-react";
 
 interface Tool {
   id: string;
@@ -48,7 +49,7 @@ const ExplorePage = () => {
   const filteredTools = tools.filter(
     (tool) =>
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      tool.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (loading) {

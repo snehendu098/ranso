@@ -1,6 +1,6 @@
 {
   "name": "create-axicov-app",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "bin": {
     "create-axicov-app": "./bin/index.js"

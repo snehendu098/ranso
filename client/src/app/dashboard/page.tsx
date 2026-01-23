@@ -10,6 +10,7 @@ import {
   IconEyeOff,
   IconWallet,
   IconReceipt,
+  IconKey,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import { useAppKitAccount } from "@reown/appkit/react";
