@@ -5,8 +5,8 @@ const app = new Hono();
 
 app.get("/", async (c) => {
   try {
-    const toolsList = await getAllTools();
-    return c.json(toolsList);
+    const tools = await getAllTools();
+    return c.json(tools);
   } catch (err) {
     console.error("Failed to fetch tools:", err);
     return c.json({ error: "Failed to fetch tools" }, 500);
