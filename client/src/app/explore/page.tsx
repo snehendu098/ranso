@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { IconTerminal2 } from "@tabler/icons-react";
+import Image from "next/image";
 
 interface Tool {
   id: string;
@@ -64,7 +64,9 @@ const ExplorePage = () => {
   return (
     <div className="h-full bg-white overflow-y-auto">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="text-2xl font-bold text-neutral-800 mb-8">Explore Tools</h1>
+        <h1 className="text-2xl font-bold text-neutral-800 mb-8">
+          Explore Tools
+        </h1>
 
         {tools.length === 0 ? (
           <p className="text-neutral-500">No tools available yet.</p>
@@ -80,9 +82,6 @@ const ExplorePage = () => {
                   <h3 className="text-lg font-semibold text-neutral-800 leading-tight pr-2 line-clamp-2">
                     {tool.name}
                   </h3>
-                  <div className="flex-shrink-0 w-9 h-9 rounded-lg border border-neutral-200 flex items-center justify-center bg-rose-600 group-hover:border-neutral-300 transition-colors">
-                    <IconTerminal2 className="w-5 h-5 text-white bg-rose-600" />
-                  </div>
                 </div>
 
                 <p className="text-sm text-neutral-500 mb-4 line-clamp-3 leading-relaxed">
@@ -91,7 +90,10 @@ const ExplorePage = () => {
 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-neutral-600">
-                    by <span className="font-medium">{truncateAddress(tool.owner)}</span>
+                    by{" "}
+                    <span className="font-medium">
+                      {truncateAddress(tool.owner)}
+                    </span>
                   </span>
                   <span className="text-sm font-medium text-rose-600">
                     ${tool.price.toFixed(2)}

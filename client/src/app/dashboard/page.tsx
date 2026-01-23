@@ -5,13 +5,13 @@ import Link from "next/link";
 import {
   IconCopy,
   IconPlus,
-  IconTerminal2,
   IconX,
   IconCheck,
   IconAlertCircle,
   IconEye,
   IconEyeOff,
 } from "@tabler/icons-react";
+import Image from "next/image";
 import { useAppKitAccount } from "@reown/appkit/react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -368,7 +368,7 @@ const DashboardPage = () => {
                         {project.name}
                       </h3>
                       <div className="flex-shrink-0 w-8 h-8 rounded-lg border border-neutral-200 flex items-center justify-center bg-rose-600">
-                        <IconTerminal2 className="w-4 h-4 text-white" />
+                        <Image src="/terminal.svg" alt="Terminal" width={16} height={16} />
                       </div>
                     </div>
                     <p className="text-sm text-neutral-500 mb-3 line-clamp-2">
