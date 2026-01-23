@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   IconPlus,
+  IconX,
   IconSend,
   IconSettings,
   IconWallet,
@@ -10,9 +11,30 @@ import {
 } from "@tabler/icons-react";
 import Image from "next/image";
 import ChatStart from "@/components/cards/chat-start";
+import ChatLayout from "@/components/layout/ChatLayout";
+
+interface Tool {
+  id: string;
+  owner: string;
+  name: string;
+  description: string;
+  apiURL: string;
+  images: string[];
+  price: number;
+}
 
 const Page = () => {
   const [message, setMessage] = useState("");
+  const [showTools, setShowTools] = useState(false);
+  const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
+
+  const handleSelectTool = (tool: Tool) => {
+    setSelectedTools((prev) =>
+      prev.some((t) => t.id === tool.id)
+        ? prev.filter((t) => t.id !== tool.id)
+        : [...prev, tool]
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +45,12 @@ const Page = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-white px-4">
+    <ChatLayout
+      showTools={showTools}
+      selectedTools={selectedTools}
+      onSelectTool={handleSelectTool}
+    >
+      <div className="flex flex-col items-center justify-center h-full bg-white px-4">
       <div className="w-full max-w-3xl flex flex-col items-center justify-center space-y-6">
         <div className="flex items-center justify-center">
           <div className="flex items-center justify-center bg-rose-900 p-2 rounded-xl">
@@ -45,9 +72,14 @@ const Page = () => {
           <div className="flex items-center gap-2 w-full px-4 py-3 bg-neutral-100 rounded-full border border-neutral-200">
             <button
               type="button"
+              onClick={() => setShowTools(!showTools)}
               className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-200 transition-colors text-neutral-500"
             >
-              <IconPlus className="h-5 w-5" />
+              {showTools ? (
+                <IconX className="h-5 w-5" />
+              ) : (
+                <IconPlus className="h-5 w-5" />
+              )}
             </button>
 
             <input
@@ -85,7 +117,8 @@ const Page = () => {
           />
         </div>
       </div>
-    </div>
+      </div>
+    </ChatLayout>
   );
 };
 

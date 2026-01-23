@@ -3,14 +3,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiProvider, type Config } from "wagmi";
-import { wagmiAdapter, projectId, networks } from "@/config/web3";
+import { wagmiAdapter, projectId } from "@/config/web3";
 import { ReactNode, useState } from "react";
+import { cronosTestnet } from "@reown/appkit/networks";
 
 // Set up metadata
 const metadata = {
   name: "Axicov",
   description: "AI-powered platform",
-  url: typeof window !== "undefined" ? window.location.origin : "https://axicov.com",
+  url:
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://axicov.com",
   icons: ["/logo.png"],
 };
 
@@ -19,7 +23,7 @@ if (projectId) {
   createAppKit({
     adapters: [wagmiAdapter],
     projectId,
-    networks,
+    networks: [cronosTestnet],
     metadata,
     features: {
       analytics: true,

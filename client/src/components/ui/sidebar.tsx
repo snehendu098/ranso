@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { IconMenu2, IconX, IconPlus } from "@tabler/icons-react";
+import { IconMenu2, IconX, IconPlus, IconWallet } from "@tabler/icons-react";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import Image from "next/image";
 
 interface Links {
@@ -193,12 +194,9 @@ export const SidebarLogo = ({ className }: { className?: string }) => {
   return (
     <a
       href="/"
-      className={cn(
-        "flex items-center gap-3 w-full mb-6 p-1 pb-3 border-b-1",
-        className,
-      )}
+      className={cn("flex items-center gap-3 w-full mb-6 p-1 pb-3", className)}
     >
-      <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-md">
+      <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-gradient-to-b from-rose-800 to-rose-900 flex items-center justify-center shadow-md">
         <Image
           src="/Large-logo.png"
           alt="Axicov"
@@ -241,6 +239,40 @@ export const SidebarNewChat = ({
       {open && (
         <span className="text-sm font-medium whitespace-nowrap">New Chat</span>
       )}
+    </button>
+  );
+};
+
+export const SidebarWalletConnect = ({ className }: { className?: string }) => {
+  const { open } = useSidebar();
+  const { open: openModal } = useAppKit();
+  const { address, isConnected } = useAppKitAccount();
+
+  const truncateAddress = (addr: string) =>
+    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
+  return (
+    <button
+      onClick={() => openModal()}
+      className={cn(
+        "flex items-center gap-3 w-full p-2 rounded-lg transition-colors",
+        isConnected
+          ? "bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          : "bg-rose-900 hover:bg-rose-800 text-white",
+        className,
+      )}
+    >
+      <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+        <IconWallet className="h-5 w-5" />
+      </div>
+      <span
+        className={cn(
+          "text-sm font-medium whitespace-nowrap transition-opacity duration-150",
+          open ? "opacity-100" : "opacity-0",
+        )}
+      >
+        {isConnected && address ? truncateAddress(address) : "Connect Wallet"}
+      </span>
     </button>
   );
 };

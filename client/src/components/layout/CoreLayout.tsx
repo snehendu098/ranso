@@ -7,8 +7,8 @@ import {
   SidebarLink,
   SidebarLogo,
   SidebarNewChat,
+  SidebarWalletConnect,
 } from "@/components/ui/sidebar";
-import { Navbar } from "@/components/layout/Navbar";
 import { IconSettings, IconLayout, IconTool } from "@tabler/icons-react";
 
 const CoreLayout = ({ children }: { children: React.ReactNode }) => {
@@ -40,20 +40,20 @@ const CoreLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="w-full h-screen flex">
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="h-full">
-          <SidebarLogo />
-          <SidebarNewChat className="" onClick={handleNewChat} />
-          <div className="flex flex-col gap-2 mt-4">
-            {links.map((link) => (
-              <SidebarLink key={link.href} link={link} />
-            ))}
+        <SidebarBody className="h-full justify-between">
+          <div>
+            <SidebarLogo />
+            <SidebarNewChat className="" onClick={handleNewChat} />
+            <div className="flex flex-col gap-2 mt-4">
+              {links.map((link) => (
+                <SidebarLink key={link.href} link={link} />
+              ))}
+            </div>
           </div>
+          <SidebarWalletConnect />
         </SidebarBody>
       </Sidebar>
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Navbar />
-        <main className="flex-1 overflow-auto">{children}</main>
-      </div>
+      <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
 };

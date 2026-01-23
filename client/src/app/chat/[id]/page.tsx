@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { IconPlus, IconMicrophone, IconWaveSine } from "@tabler/icons-react";
+import { IconPlus, IconX, IconMicrophone, IconWaveSine } from "@tabler/icons-react";
+import ChatLayout from "@/components/layout/ChatLayout";
 
 interface Message {
   id: string;
@@ -9,7 +10,19 @@ interface Message {
   content: string;
 }
 
+interface Tool {
+  id: string;
+  owner: string;
+  name: string;
+  description: string;
+  apiURL: string;
+  images: string[];
+  price: number;
+}
+
 const ChatPage = () => {
+  const [showTools, setShowTools] = useState(false);
+  const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -45,6 +58,14 @@ According to the hackathon rules, prizes, and judging criteria:
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSelectTool = (tool: Tool) => {
+    setSelectedTools((prev) =>
+      prev.some((t) => t.id === tool.id)
+        ? prev.filter((t) => t.id !== tool.id)
+        : [...prev, tool]
+    );
   };
 
   useEffect(() => {
@@ -135,8 +156,13 @@ According to the hackathon rules, prizes, and judging criteria:
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Messages Area */}
+    <ChatLayout
+      showTools={showTools}
+      selectedTools={selectedTools}
+      onSelectTool={handleSelectTool}
+    >
+      <div className="flex flex-col h-full bg-white">
+        {/* Messages Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 py-8">
           {messages.map((message) => (
@@ -179,9 +205,14 @@ According to the hackathon rules, prizes, and judging criteria:
             <div className="flex items-center gap-2 w-full px-4 py-3 bg-neutral-100 rounded-full border border-neutral-200">
               <button
                 type="button"
+                onClick={() => setShowTools(!showTools)}
                 className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-200 transition-colors text-neutral-500"
               >
-                <IconPlus className="h-5 w-5" />
+                {showTools ? (
+                  <IconX className="h-5 w-5" />
+                ) : (
+                  <IconPlus className="h-5 w-5" />
+                )}
               </button>
 
               <input
@@ -211,7 +242,8 @@ According to the hackathon rules, prizes, and judging criteria:
           </form>
         </div>
       </div>
-    </div>
+      </div>
+    </ChatLayout>
   );
 };
 
